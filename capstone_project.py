@@ -583,42 +583,31 @@ def train_models(data, selected_features, selected_model_names, available_models
         X_test_scaled = scaler.transform(X_test)
         
         # Hyperparameter grids for each model - MORE REGULARIZED
+        # Hyperparameter grids for each model - OPTIMIZED FOR SPEED
         param_grids = {
             'Random Forest': {
-                'n_estimators': [50, 100, 200],  # Fewer trees
-                'max_depth': [3, 5, 7, 10],       # Limit depth to prevent overfitting
-                'min_samples_split': [5, 10, 20], # Higher minimum splits
-                'min_samples_leaf': [2, 4, 8],    # Higher minimum leaf samples
-                'max_features': ['sqrt', 'log2'], # Limit features per split
-                'bootstrap': [True],              # Always use bootstrapping
-                'class_weight': ['balanced']      # Handle class imbalance
+                'n_estimators': [50, 100],
+                'max_depth': [5, 10],
+                'max_features': ['sqrt'],
+                'class_weight': ['balanced']
             },
             'Gradient Boosting': {
-                'n_estimators': [50, 100, 150],   # Fewer estimators
-                'learning_rate': [0.01, 0.1, 0.15, 0.2],
-                'max_depth': [3, 4, 5],           # Shallower trees
-                'min_samples_split': [10, 20],    # Higher splits
-                'min_samples_leaf': [4, 8],       # Higher leaf samples
-                'subsample': [0.8, 0.9, 1.0],
-                'max_features': ['sqrt', 'log2', None]
+                'n_estimators': [50, 100],
+                'learning_rate': [0.1, 0.2],
+                'max_depth': [3, 5],
+                'subsample': [0.9]
             },
             'Logistic Regression': {
-                'C': [0.01, 0.1, 1, 10],          # More regularization
-                'penalty': ['l1', 'l2', 'elasticnet'],
-                'solver': ['liblinear', 'saga', 'lbfgs'],
-                'max_iter': [1000, 2000, 3000],
-                'class_weight': [None, 'balanced']
+                'C': [0.1, 1, 10],
+                'penalty': ['l2'],
+                'solver': ['lbfgs'],
+                'class_weight': ['balanced']
             },
             'XGBoost': {
-                'n_estimators': [50, 100, 150],   # Fewer estimators
-                'learning_rate': [0.01, 0.05, 0.1], # Lower learning rates
-                'max_depth': [3, 4, 5],           # Shallower trees
-                'min_child_weight': [1, 3, 5],
-                'subsample': [0.8, 0.9, 1.0],
-                'colsample_bytree': [0.8, 0.9, 1.0],
-                'gamma': [0, 0.1, 0.2],
-                'reg_alpha': [0.1, 1, 10],        # Stronger L1 regularization
-                'reg_lambda': [1, 10, 100]        # Stronger L2 regularization
+                'n_estimators': [50, 100],
+                'learning_rate': [0.05, 0.1],
+                'max_depth': [3, 5],
+                'subsample': [0.9]
             }
         }
         
@@ -644,9 +633,9 @@ def train_models(data, selected_features, selected_model_names, available_models
             if param_grid and len(X_train) >200:  # Only tune for datasets with sufficient size
                 try:
                     # Use RandomizedSearchCV for faster hyperparameter search
-                    n_iter = min(50, len(X_train) // 10)  # Adaptive number of iterations
-                    cv_folds = min(5, len(X_train) // 50)  # Adaptive CV folds
-                    cv_folds = max(cv_folds, 3)  # At least 3 folds
+                    # Use RandomizedSearchCV for faster hyperparameter search
+                    n_iter = min(10, len(X_train) // 20)  # REDUCED: Max 10 iterations
+                    cv_folds = 3  # FIXED: Always 3 folds for speed
                     
                     st.info(f"Running hyperparameter search with {n_iter} iterations and {cv_folds}-fold CV...")
                     
@@ -1723,4 +1712,5 @@ if selected_ticker != 'Select a ticker...':
 
 
 # --- New: Route diagnostics to the Run log inside helper functions ---
+
 
