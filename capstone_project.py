@@ -1064,21 +1064,16 @@ if selected_ticker != 'Select a ticker...':
             
             if not stock_data.empty:
                 # Reset index to make date a column
-                validation_success = validate_data_with_alphavantage(stock_data, selected_symbol)
-
-                if validation_success:
-                    stock_data = stock_data.reset_index()
-                    # Calculate all technical indicators and prepare data
-                    analysis_data = calculate_technical_indicators(stock_data)
-                    model_results = None
-                else:
-                    # Move this notice to the sidebar log
-                    ui.error("Data validation failed. Please check the data source and try again.")
-                # If validation failed, show a warning but continue using Yahoo Finance data
-                if not validation_success:
-                    ui.warning("External validation failed or unavailable  -  proceeding with Yahoo Finance data only.")
-                # Compute technical indicators from the Yahoo Finance data regardless of validation
+                # DISABLED: Alpha Vantage validation to avoid rate limits on cloud deployment
+                # validation_success = validate_data_with_alphavantage(stock_data, selected_symbol)
+                validation_success = True  # Skip validation - use Yahoo Finance data directly
+                
+                stock_data = stock_data.reset_index()
+                # Calculate all technical indicators and prepare data
                 analysis_data = calculate_technical_indicators(stock_data)
+                model_results = None
+
+                
 
                 # Ensure analysis_data has a proper datetime index for plotting:
                 # convert 'date' column to datetime, set as index, drop rows with NaT index,
@@ -1728,3 +1723,4 @@ if selected_ticker != 'Select a ticker...':
 
 
 # --- New: Route diagnostics to the Run log inside helper functions ---
+
