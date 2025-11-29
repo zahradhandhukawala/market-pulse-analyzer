@@ -787,8 +787,12 @@ def validate_data_with_alphavantage(yf_data, ticker):
     the difference exceeds the configured threshold. External failures are
     treated as non-fatal and return True so the app can continue.
     """
-    # Use Streamlit secrets if available, otherwise fallback to hardcoded key
-    av_api_key = st.secrets.get("ALPHA_VANTAGE_KEY", "08DDSNK5LAM338H2")
+  # Use Streamlit secrets if available, otherwise fallback to hardcoded key
+    try:
+        av_api_key = st.secrets.get("ALPHA_VANTAGE_KEY", "08DDSNK5LAM338H2")
+    except Exception:
+        # Secrets not available (local run without .streamlit/secrets.toml)
+        av_api_key = "08DDSNK5LAM338H2"
 
     try:
         ts = TimeSeries(key=av_api_key, output_format='pandas')
@@ -1721,5 +1725,6 @@ if selected_ticker != 'Select a ticker...':
             ui.error(f'Error fetching or processing data for {selected_ticker}: {e}')
             with ui.expander("Traceback"):
                 ui.text(tb)
+
 
 # --- New: Route diagnostics to the Run log inside helper functions ---
